@@ -1,0 +1,11 @@
+{
+  "name": "pex",
+  "private": true,
+  "description": "Plataforma integrada de gestão de estágios",
+  "scripts": {
+    "db:up": "docker compose up -d",
+    "db:setup": "npm --prefix backend run prisma:setup",
+    "dev:api": "npm --prefix backend run start:dev",
+    "dev:web": "npm --prefix frontend run dev"
+  }
+}

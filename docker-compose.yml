@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pex-postgres
+    environment:
+      POSTGRES_USER: pex
+      POSTGRES_PASSWORD: pex
+      POSTGRES_DB: pex
+    ports:
+      - "5432:5432"
+    volumes:
+      - pex_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pex -d pex"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pex_pg:

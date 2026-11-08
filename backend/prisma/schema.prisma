@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  COMPANY
+  ADMIN
+}
+
+enum VacancyStatus {
+  ABERTA
+  ENCERRADA
+}
+
+enum ApplicationStatus {
+  ENVIADA
+  EM_ANALISE
+  ENTREVISTA
+  APROVADA
+  REPROVADA
+  CANCELADA
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+  student      Student?
+  company      Company?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Institution {
+  id        String    @id @default(uuid())
+  name      String
+  city      String
+  students  Student[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Student {
+  id            String        @id @default(uuid())
+  name          String
+  course        String
+  semester      Int
+  userId        String        @unique
+  user          User          @relation(fields: [userId], references: [id])
+  institutionId String
+  institution   Institution   @relation(fields: [institutionId], references: [id])
+  applications  Application[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Company {
+  id         String    @id @default(uuid())
+  name       String
+  segment    String
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id])
+  vacancies  Vacancy[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Vacancy {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  status       VacancyStatus @default(ABERTA)
+  openings     Int
+  companyId    String
+  company      Company       @relation(fields: [companyId], references: [id])
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Application {
+  id        String             @id @default(uuid())
+  status    ApplicationStatus  @default(ENVIADA)
+  studentId String
+  vacancyId String
+  student   Student            @relation(fields: [studentId], references: [id])
+  vacancy   Vacancy            @relation(fields: [vacancyId], references: [id])
+  events    ApplicationEvent[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([studentId, vacancyId])
+}
+
+model ApplicationEvent {
+  id            String            @id @default(uuid())
+  status        ApplicationStatus
+  note          String?
+  applicationId String
+  application   Application       @relation(fields: [applicationId], references: [id])
+  createdAt     DateTime          @default(now())
+}
