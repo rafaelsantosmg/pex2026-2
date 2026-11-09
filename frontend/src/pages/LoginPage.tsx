@@ -37,8 +37,8 @@ export function LoginPage() {
   return (
     <div className="login">
       <section className="login-aside">
-        <p className="eyebrow">Protótipo acadêmico</p>
-        <h1>PEX</h1>
+        <p className="eyebrow">Estágios e oportunidades</p>
+        <h1>Nexo</h1>
         <p className="aside-copy">
           Plataforma integrada de gestão de estágios. Três acessos, um mesmo cadastro.
         </p>
@@ -91,7 +91,7 @@ export function LoginPage() {
           </button>
         </form>
         <div className="demos">
-          <p>Contas fictícias, senha pex12345</p>
+          <p>Acessos de demonstração, senha pex12345</p>
           <div>
             {demos.map((demo) => (
               <button

@@ -18,7 +18,7 @@ export function Shell({ title, lede, children }: { title: string; lede: string; 
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <span>PEX</span>
+          <span>Nexo</span>
           <small>Gestão de estágios</small>
         </div>
         <div className="who">

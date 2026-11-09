@@ -28,7 +28,7 @@ export function AdminHome() {
   }, []);
 
   return (
-    <Shell title="Visão geral" lede="Cadastros da plataforma e candidaturas em andamento. Dados fictícios.">
+    <Shell title="Visão geral" lede="Cadastros da plataforma e candidaturas em andamento.">
       {error ? <p className="form-error">{error}</p> : null}
       <div className="stats">
         <article>
