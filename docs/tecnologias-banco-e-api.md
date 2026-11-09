@@ -18,7 +18,7 @@ API NestJS (prefixo /api, porta 3000)
 PostgreSQL
 ```
 
-Em desenvolvimento, o Vite (porta 5173) encaminha `/api` para `http://localhost:3000`. Em produção, a Vercel faz o mesmo encaminhamento para a API publicada no Render (`frontend/vercel.json`). O navegador fala sempre com a origem da interface, então a chamada não depende de CORS entre domínios.
+Em desenvolvimento, o Vite (porta 5173) encaminha `/api` para `http://localhost:3000`. Em produção, a Vercel faz o mesmo encaminhamento para a API no Render. O detalhe de cada plataforma está na seção Publicação. O navegador fala sempre com a origem da interface, então a chamada não depende de CORS entre domínios.
 
 A API segue camadas por módulo: **controller** recebe a requisição, **service** aplica a regra de negócio, **Prisma** lê e grava o banco. Cada área de domínio tem a própria pasta em `backend/src`: `auth`, `institutions`, `companies`, `students`, `vacancies` e `applications`.
 
@@ -40,6 +40,31 @@ A API segue camadas por módulo: **controller** recebe a requisição, **service
 | Configuração | `@nestjs/config` | `DATABASE_URL`, `JWT_SECRET` e `PORT` |
 
 O Postgres local sobe com `docker compose up -d`. A API escuta a porta definida em `PORT` ou, na falta dela, a 3000. O prefixo global de todas as rotas é `/api`.
+
+## Publicação
+
+O código fica no GitHub, no repositório público [rafaelsantosmg/pex2026-2](https://github.com/rafaelsantosmg/pex2026-2). Cada plataforma publica uma parte do sistema. Nenhuma delas guarda segredo no repositório: `DATABASE_URL` e `JWT_SECRET` existem só no painel do Render.
+
+| Parte | Plataforma | Endereço |
+|---|---|---|
+| Interface | Vercel | https://pex2026-2.vercel.app |
+| API | Render (Web Service) | https://pex2026-2.onrender.com |
+| Banco | Neon (PostgreSQL) | conexão usada só pela API |
+| Código | GitHub | https://github.com/rafaelsantosmg/pex2026-2 |
+
+**Vercel.** Publica a pasta `frontend`. O preset é Vite: o build gera a pasta `dist` e a Vercel serve esses arquivos. O arquivo `frontend/vercel.json` reescreve `/api/:path*` para `https://pex2026-2.onrender.com/api/:path*`. Assim, a tela em `pex2026-2.vercel.app` chama `/api/auth/login` no próprio domínio, e a Vercel entrega a requisição ao Render.
+
+**Render.** Publica a pasta `backend`, na região Oregon. O build instala as dependências, gera o cliente do Prisma, compila o Nest e aplica as migrações:
+
+```bash
+npm install && npx prisma generate && npm run build && npx prisma migrate deploy
+```
+
+O processo de produção é `node dist/main.js`. O painel guarda `DATABASE_URL` (string direta do Neon, sem o host `-pooler`, com `schema=public`) e um `JWT_SECRET` próprio desse ambiente. O seed não roda a cada publicação: ele apaga e recria os dados, então só é executado de propósito.
+
+**Neon.** Hospeda o PostgreSQL que a API de produção usa. O banco local do Docker Compose continua separado e serve só para desenvolvimento. A região do Neon neste projeto é `us-east-2`.
+
+No plano gratuito o Render adormece a API depois de um tempo sem acesso. A primeira chamada depois disso pode demorar até o serviço acordar. A rota `GET /api/health` confirma que a API e o banco responderam.
 
 ## Estrutura do banco
 
